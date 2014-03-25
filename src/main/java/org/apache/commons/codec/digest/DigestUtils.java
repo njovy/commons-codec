@@ -201,6 +201,18 @@ public class DigestUtils {
     /**
      * Calculates the MD2 digest and returns the value as a 16 element <code>byte[]</code>.
      *
+     * @param data Data to digest
+     * @return MD2 digest
+     * @throws IOException On error reading from the channel
+     * @since 1.7
+     */
+    public static byte[] md2(final FileChannel data) throws IOException {
+        return digest(getMd2Digest(), data);
+    }
+
+    /**
+     * Calculates the MD2 digest and returns the value as a 16 element <code>byte[]</code>.
+     *
      * @param data Data to digest; converted to bytes using {@link StringUtils#getBytesUtf8(String)}
      * @return MD2 digest
      * @since 1.7
@@ -383,6 +395,18 @@ public class DigestUtils {
     /**
      * Calculates the SHA-1 digest and returns the value as a <code>byte[]</code>.
      *
+     * @param data Data to digest
+     * @return SHA-1 digest
+     * @throws IOException On error reading from the stream
+     * @since 1.7
+     */
+    public static byte[] sha1(final FileChannel data) throws IOException {
+        return digest(getSha1Digest(), data);
+    }
+
+    /**
+     * Calculates the SHA-1 digest and returns the value as a <code>byte[]</code>.
+     *
      * @param data Data to digest; converted to bytes using {@link StringUtils#getBytesUtf8(String)}
      * @return SHA-1 digest
      */
@@ -450,6 +474,21 @@ public class DigestUtils {
      * @since 1.4
      */
     public static byte[] sha256(final InputStream data) throws IOException {
+        return digest(getSha256Digest(), data);
+    }
+
+    /**
+     * Calculates the SHA-256 digest and returns the value as a <code>byte[]</code>.
+     * <p>
+     * Throws a <code>RuntimeException</code> on JRE versions prior to 1.4.0.
+     * </p>
+     *
+     * @param data Data to digest
+     * @return SHA-256 digest
+     * @throws IOException On error reading from the channel
+     * @since 1.4
+     */
+    public static byte[] sha256(final FileChannel data) throws IOException {
         return digest(getSha256Digest(), data);
     }
 
@@ -545,6 +584,21 @@ public class DigestUtils {
      * Throws a <code>RuntimeException</code> on JRE versions prior to 1.4.0.
      * </p>
      *
+     * @param data Data to digest
+     * @return SHA-384 digest
+     * @throws IOException On error reading from the channel
+     * @since 1.4
+     */
+    public static byte[] sha384(final FileChannel data) throws IOException {
+        return digest(getSha384Digest(), data);
+    }
+
+    /**
+     * Calculates the SHA-384 digest and returns the value as a <code>byte[]</code>.
+     * <p>
+     * Throws a <code>RuntimeException</code> on JRE versions prior to 1.4.0.
+     * </p>
+     *
      * @param data Data to digest; converted to bytes using {@link StringUtils#getBytesUtf8(String)}
      * @return SHA-384 digest
      * @since 1.4
@@ -622,6 +676,21 @@ public class DigestUtils {
      * @since 1.4
      */
     public static byte[] sha512(final InputStream data) throws IOException {
+        return digest(getSha512Digest(), data);
+    }
+
+    /**
+     * Calculates the SHA-512 digest and returns the value as a <code>byte[]</code>.
+     * <p>
+     * Throws a <code>RuntimeException</code> on JRE versions prior to 1.4.0.
+     * </p>
+     *
+     * @param data Data to digest
+     * @return SHA-512 digest
+     * @throws IOException On error reading from the channel
+     * @since 1.4
+     */
+    public static byte[] sha512(final FileChannel data) throws IOException {
         return digest(getSha512Digest(), data);
     }
 
@@ -762,15 +831,17 @@ public class DigestUtils {
      * @throws IOException On error reading from the channel
      */
     public static MessageDigest updateDigest(final MessageDigest digest, final FileChannel data) throws IOException {
+        // Allocating a buffer directly is faster than the normal allocate method in general.
         final ByteBuffer buffer = ByteBuffer.allocateDirect(STREAM_BUFFER_LENGTH);
 
         int read = data.read(buffer);
         while (read > 0) {
+            // reading bytes from this channel into the given buffer moves the current position.
+            // we need to set to 0.
             buffer.flip();
             digest.update(buffer);
             read = data.read(buffer);
             buffer.clear();
-
         }
         return digest;
     }
