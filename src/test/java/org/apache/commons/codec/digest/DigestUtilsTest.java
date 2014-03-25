@@ -17,18 +17,19 @@
 
 package org.apache.commons.codec.digest;
 
-import static org.apache.commons.codec.binary.StringUtils.getBytesUtf8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.security.MessageDigest;
-import java.util.Random;
-
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.channels.Channels;
+import java.security.MessageDigest;
+import java.util.Random;
+
+import static org.apache.commons.codec.binary.StringUtils.getBytesUtf8;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests DigestUtils methods.
@@ -37,7 +38,7 @@ import org.junit.Test;
  */
 public class DigestUtilsTest {
 
-    private final byte[] testData = new byte[1024*1024];
+    private final byte[] testData = new byte[1024 * 1024];
 
     /* (non-Javadoc)
      * @see junit.framework.TestCase#setUp()
@@ -51,7 +52,7 @@ public class DigestUtilsTest {
         assertNotNull(new DigestUtils());
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testInternalNoSuchAlgorithmException() {
         DigestUtils.getDigest("Bogus Bogus");
     }
@@ -70,15 +71,20 @@ public class DigestUtilsTest {
         assertEquals("4e8ddff3650292ab5a4108c3aa47940b", DigestUtils.md2Hex("abcdefghijklmnopqrstuvwxyz"));
 
         assertEquals(
-            "da33def2a42df13975352846c30338cd",
-            DigestUtils.md2Hex("ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz" + "0123456789"));
+                "da33def2a42df13975352846c30338cd",
+                DigestUtils.md2Hex("ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz" + "0123456789"));
 
         assertEquals(
-            "d5976f79d83d3a0dc9806c3c66f3efd8",
-            DigestUtils.md2Hex("1234567890123456789012345678901234567890" + "1234567890123456789012345678901234567890"));
+                "d5976f79d83d3a0dc9806c3c66f3efd8",
+                DigestUtils.md2Hex("1234567890123456789012345678901234567890" + "1234567890123456789012345678901234567890"));
 
         assertEquals(DigestUtils.md2Hex(testData),
                 DigestUtils.md2Hex(new ByteArrayInputStream(testData)));
+
+        assertEquals(DigestUtils.md2Hex(testData),
+                DigestUtils.md2Hex(Channels.newChannel(new ByteArrayInputStream(testData))));
+
+
     }
 
     /**
@@ -123,15 +129,20 @@ public class DigestUtilsTest {
         assertEquals("c3fcd3d76192e4007dfb496cca67e13b", DigestUtils.md5Hex("abcdefghijklmnopqrstuvwxyz"));
 
         assertEquals(
-            "d174ab98d277d9f5a5611c2c9f419d9f",
-            DigestUtils.md5Hex("ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz" + "0123456789"));
+                "d174ab98d277d9f5a5611c2c9f419d9f",
+                DigestUtils.md5Hex("ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz" + "0123456789"));
 
         assertEquals(
-            "57edf4a22be3c955ac49da2e2107b67a",
-            DigestUtils.md5Hex("1234567890123456789012345678901234567890" + "1234567890123456789012345678901234567890"));
+                "57edf4a22be3c955ac49da2e2107b67a",
+                DigestUtils.md5Hex("1234567890123456789012345678901234567890" + "1234567890123456789012345678901234567890"));
 
         assertEquals(DigestUtils.md5Hex(testData),
                 DigestUtils.md5Hex(new ByteArrayInputStream(testData)));
+
+        assertEquals(DigestUtils.md5Hex(testData),
+                DigestUtils.md5Hex(Channels.newChannel(new ByteArrayInputStream(testData))));
+
+
     }
 
     /**
@@ -170,14 +181,16 @@ public class DigestUtilsTest {
         assertEquals("a9993e364706816aba3e25717850c26c9cd0d89d", DigestUtils.sha1Hex(getBytesUtf8("abc")));
 
         assertEquals(
-            "84983e441c3bd26ebaae4aa1f95129e5e54670f1",
-            DigestUtils.sha1Hex("abcdbcdecdefdefgefghfghighij" + "hijkijkljklmklmnlmnomnopnopq"));
+                "84983e441c3bd26ebaae4aa1f95129e5e54670f1",
+                DigestUtils.sha1Hex("abcdbcdecdefdefgefghfghighij" + "hijkijkljklmklmnlmnomnopnopq"));
         assertEquals(DigestUtils.sha1Hex(testData),
                 DigestUtils.sha1Hex(new ByteArrayInputStream(testData)));
+        assertEquals(DigestUtils.sha1Hex(testData),
+                DigestUtils.sha1Hex(Channels.newChannel(new ByteArrayInputStream(testData))));
     }
 
     @Test
-    public void testSha1UpdateWithByteArray(){
+    public void testSha1UpdateWithByteArray() {
         final String d1 = "C'est un homme qui rentre dans un café, et plouf";
         final String d2 = "C'est un homme, c'est qu'une tête, on lui offre un cadeau: 'oh... encore un chapeau!'";
 
@@ -195,7 +208,7 @@ public class DigestUtilsTest {
     }
 
     @Test
-    public void testSha1UpdateWithString(){
+    public void testSha1UpdateWithString() {
         final String d1 = "C'est un homme qui rentre dans un café, et plouf";
         final String d2 = "C'est un homme, c'est qu'une tête, on lui offre un cadeau: 'oh... encore un chapeau!'";
 
@@ -214,51 +227,59 @@ public class DigestUtilsTest {
 
     @Test
     public void testSha256() throws IOException {
-    // Examples from FIPS 180-2
-    assertEquals("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
-             DigestUtils.sha256Hex("abc"));
-    assertEquals("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
-             DigestUtils.sha256Hex(getBytesUtf8("abc")));
-    assertEquals("248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1",
-             DigestUtils.sha256Hex("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"));
+        // Examples from FIPS 180-2
+        assertEquals("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+                DigestUtils.sha256Hex("abc"));
+        assertEquals("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+                DigestUtils.sha256Hex(getBytesUtf8("abc")));
+        assertEquals("248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1",
+                DigestUtils.sha256Hex("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"));
 
-    assertEquals(DigestUtils.sha256Hex(testData),
-            DigestUtils.sha256Hex(new ByteArrayInputStream(testData)));
+        assertEquals(DigestUtils.sha256Hex(testData),
+                DigestUtils.sha256Hex(new ByteArrayInputStream(testData)));
+        assertEquals(DigestUtils.sha256Hex(testData),
+                DigestUtils.sha256Hex(Channels.newChannel(new ByteArrayInputStream(testData))));
+
+
     }
 
     @Test
     public void testSha384() throws IOException {
-    // Examples from FIPS 180-2
-    assertEquals("cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed" +
-             "8086072ba1e7cc2358baeca134c825a7",
-             DigestUtils.sha384Hex("abc"));
-    assertEquals("cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed" +
-             "8086072ba1e7cc2358baeca134c825a7",
-             DigestUtils.sha384Hex(getBytesUtf8("abc")));
-    assertEquals("09330c33f71147e83d192fc782cd1b4753111b173b3b05d22fa08086e3b0f712" +
-            "fcc7c71a557e2db966c3e9fa91746039",
-             DigestUtils.sha384Hex("abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmn" +
-                       "hijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"));
-    assertEquals(DigestUtils.sha384Hex(testData),
-            DigestUtils.sha384Hex(new ByteArrayInputStream(testData)));
+        // Examples from FIPS 180-2
+        assertEquals("cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed" +
+                "8086072ba1e7cc2358baeca134c825a7",
+                DigestUtils.sha384Hex("abc"));
+        assertEquals("cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed" +
+                "8086072ba1e7cc2358baeca134c825a7",
+                DigestUtils.sha384Hex(getBytesUtf8("abc")));
+        assertEquals("09330c33f71147e83d192fc782cd1b4753111b173b3b05d22fa08086e3b0f712" +
+                "fcc7c71a557e2db966c3e9fa91746039",
+                DigestUtils.sha384Hex("abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmn" +
+                        "hijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"));
+        assertEquals(DigestUtils.sha384Hex(testData),
+                DigestUtils.sha384Hex(new ByteArrayInputStream(testData)));
+        assertEquals(DigestUtils.sha384Hex(testData),
+                DigestUtils.sha384Hex(Channels.newChannel(new ByteArrayInputStream(testData))));
     }
 
     @Test
     public void testSha512() throws IOException {
-    // Examples from FIPS 180-2
-    assertEquals("ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a" +
-            "2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f",
-             DigestUtils.sha512Hex("abc"));
-    assertEquals("ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a" +
-             "2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f",
-             DigestUtils.sha512Hex(getBytesUtf8("abc")));
-    assertEquals("8e959b75dae313da8cf4f72814fc143f8f7779c6eb9f7fa17299aeadb6889018" +
-             "501d289e4900f7e4331b99dec4b5433ac7d329eeb6dd26545e96e55b874be909",
-             DigestUtils.sha512Hex("abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmn" +
-                       "hijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"));
-    assertEquals(DigestUtils.sha512Hex(testData),
-            DigestUtils.sha512Hex(new ByteArrayInputStream(testData)));
-}
+        // Examples from FIPS 180-2
+        assertEquals("ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a" +
+                "2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f",
+                DigestUtils.sha512Hex("abc"));
+        assertEquals("ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a" +
+                "2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f",
+                DigestUtils.sha512Hex(getBytesUtf8("abc")));
+        assertEquals("8e959b75dae313da8cf4f72814fc143f8f7779c6eb9f7fa17299aeadb6889018" +
+                "501d289e4900f7e4331b99dec4b5433ac7d329eeb6dd26545e96e55b874be909",
+                DigestUtils.sha512Hex("abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmn" +
+                        "hijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"));
+        assertEquals(DigestUtils.sha512Hex(testData),
+                DigestUtils.sha512Hex(new ByteArrayInputStream(testData)));
+        assertEquals(DigestUtils.sha512Hex(testData),
+                DigestUtils.sha512Hex(Channels.newChannel(new ByteArrayInputStream(testData))));
+    }
 
     @SuppressWarnings("deprecation") // deliberate tests of deprecated code
     @Test
@@ -269,15 +290,15 @@ public class DigestUtilsTest {
         assertEquals("a9993e364706816aba3e25717850c26c9cd0d89d", DigestUtils.shaHex(getBytesUtf8("abc")));
 
         assertEquals(
-            "84983e441c3bd26ebaae4aa1f95129e5e54670f1",
-            DigestUtils.shaHex("abcdbcdecdefdefgefghfghighij" + "hijkijkljklmklmnlmnomnopnopq"));
+                "84983e441c3bd26ebaae4aa1f95129e5e54670f1",
+                DigestUtils.shaHex("abcdbcdecdefdefgefghfghighij" + "hijkijkljklmklmnlmnomnopnopq"));
         assertEquals(DigestUtils.shaHex(testData),
                 DigestUtils.shaHex(new ByteArrayInputStream(testData)));
     }
 
     @SuppressWarnings("deprecation") // deliberate tests of deprecated code
     @Test
-    public void testShaUpdateWithByteArray(){
+    public void testShaUpdateWithByteArray() {
         final String d1 = "C'est un homme qui rentre dans un café, et plouf";
         final String d2 = "C'est un homme, c'est qu'une tête, on lui offre un cadeau: 'oh... encore un chapeau!'";
 
@@ -296,7 +317,7 @@ public class DigestUtilsTest {
 
     @SuppressWarnings("deprecation") // deliberate tests of deprecated code
     @Test
-    public void testShaUpdateWithString(){
+    public void testShaUpdateWithString() {
         final String d1 = "C'est un homme qui rentre dans un café, et plouf";
         final String d2 = "C'est un homme, c'est qu'une tête, on lui offre un cadeau: 'oh... encore un chapeau!'";
 

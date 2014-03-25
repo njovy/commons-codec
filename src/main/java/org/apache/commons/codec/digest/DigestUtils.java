@@ -23,7 +23,7 @@ import org.apache.commons.codec.binary.StringUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -50,14 +50,14 @@ public class DigestUtils {
     }
 
     /**
-     * Read through an FileChannel and returns the digest for the data
+     * Read through an ReadableByteChannel and returns the digest for the data
      *
      * @param digest The MessageDigest to use (e.g. MD5)
      * @param data   Data to digest
      * @return the digest
-     * @throws IOException On error reading from the stream
+     * @throws IOException On error reading from the channel
      */
-    private static byte[] digest(final MessageDigest digest, final FileChannel data) throws IOException {
+    private static byte[] digest(final MessageDigest digest, final ReadableByteChannel data) throws IOException {
         return updateDigest(digest, data).digest();
     }
 
@@ -206,7 +206,7 @@ public class DigestUtils {
      * @throws IOException On error reading from the channel
      * @since 1.7
      */
-    public static byte[] md2(final FileChannel data) throws IOException {
+    public static byte[] md2(final ReadableByteChannel data) throws IOException {
         return digest(getMd2Digest(), data);
     }
 
@@ -241,6 +241,18 @@ public class DigestUtils {
      * @since 1.7
      */
     public static String md2Hex(final InputStream data) throws IOException {
+        return Hex.encodeHexString(md2(data));
+    }
+
+    /**
+     * Calculates the MD2 digest and returns the value as a 32 character hex string.
+     *
+     * @param data Data to digest
+     * @return MD2 digest as a hex string
+     * @throws IOException On error reading from the channel
+     * @since 1.7
+     */
+    public static String md2Hex(final ReadableByteChannel data) throws IOException {
         return Hex.encodeHexString(md2(data));
     }
 
@@ -285,7 +297,7 @@ public class DigestUtils {
      * @throws IOException On error reading from the channel
      * @since 1.4
      */
-    public static byte[] md5(final FileChannel data) throws IOException {
+    public static byte[] md5(final ReadableByteChannel data) throws IOException {
         return digest(getMd5Digest(), data);
     }
 
@@ -318,6 +330,18 @@ public class DigestUtils {
      * @since 1.4
      */
     public static String md5Hex(final InputStream data) throws IOException {
+        return Hex.encodeHexString(md5(data));
+    }
+
+    /**
+     * Calculates the MD5 digest and returns the value as a 32 character hex string.
+     *
+     * @param data Data to digest
+     * @return MD5 digest as a hex string
+     * @throws IOException On error reading from the channel
+     * @since 1.4
+     */
+    public static String md5Hex(final ReadableByteChannel data) throws IOException {
         return Hex.encodeHexString(md5(data));
     }
 
@@ -397,10 +421,10 @@ public class DigestUtils {
      *
      * @param data Data to digest
      * @return SHA-1 digest
-     * @throws IOException On error reading from the stream
+     * @throws IOException On error reading from the channel
      * @since 1.7
      */
-    public static byte[] sha1(final FileChannel data) throws IOException {
+    public static byte[] sha1(final ReadableByteChannel data) throws IOException {
         return digest(getSha1Digest(), data);
     }
 
@@ -434,6 +458,18 @@ public class DigestUtils {
      * @since 1.7
      */
     public static String sha1Hex(final InputStream data) throws IOException {
+        return Hex.encodeHexString(sha1(data));
+    }
+
+    /**
+     * Calculates the SHA-1 digest and returns the value as a hex string.
+     *
+     * @param data Data to digest
+     * @return SHA-1 digest as a hex string
+     * @throws IOException On error reading from the channel
+     * @since 1.7
+     */
+    public static String sha1Hex(final ReadableByteChannel data) throws IOException {
         return Hex.encodeHexString(sha1(data));
     }
 
@@ -488,7 +524,7 @@ public class DigestUtils {
      * @throws IOException On error reading from the channel
      * @since 1.4
      */
-    public static byte[] sha256(final FileChannel data) throws IOException {
+    public static byte[] sha256(final ReadableByteChannel data) throws IOException {
         return digest(getSha256Digest(), data);
     }
 
@@ -532,6 +568,21 @@ public class DigestUtils {
      * @since 1.4
      */
     public static String sha256Hex(final InputStream data) throws IOException {
+        return Hex.encodeHexString(sha256(data));
+    }
+
+    /**
+     * Calculates the SHA-256 digest and returns the value as a hex string.
+     * <p>
+     * Throws a <code>RuntimeException</code> on JRE versions prior to 1.4.0.
+     * </p>
+     *
+     * @param data Data to digest
+     * @return SHA-256 digest as a hex string
+     * @throws IOException On error reading from the channel
+     * @since 1.4
+     */
+    public static String sha256Hex(final ReadableByteChannel data) throws IOException {
         return Hex.encodeHexString(sha256(data));
     }
 
@@ -589,7 +640,7 @@ public class DigestUtils {
      * @throws IOException On error reading from the channel
      * @since 1.4
      */
-    public static byte[] sha384(final FileChannel data) throws IOException {
+    public static byte[] sha384(final ReadableByteChannel data) throws IOException {
         return digest(getSha384Digest(), data);
     }
 
@@ -644,6 +695,21 @@ public class DigestUtils {
      *
      * @param data Data to digest
      * @return SHA-384 digest as a hex string
+     * @throws IOException On error reading from the channel
+     * @since 1.4
+     */
+    public static String sha384Hex(final ReadableByteChannel data) throws IOException {
+        return Hex.encodeHexString(sha384(data));
+    }
+
+    /**
+     * Calculates the SHA-384 digest and returns the value as a hex string.
+     * <p>
+     * Throws a <code>RuntimeException</code> on JRE versions prior to 1.4.0.
+     * </p>
+     *
+     * @param data Data to digest
+     * @return SHA-384 digest as a hex string
      * @since 1.4
      */
     public static String sha384Hex(final String data) {
@@ -679,6 +745,8 @@ public class DigestUtils {
         return digest(getSha512Digest(), data);
     }
 
+
+
     /**
      * Calculates the SHA-512 digest and returns the value as a <code>byte[]</code>.
      * <p>
@@ -690,7 +758,7 @@ public class DigestUtils {
      * @throws IOException On error reading from the channel
      * @since 1.4
      */
-    public static byte[] sha512(final FileChannel data) throws IOException {
+    public static byte[] sha512(final ReadableByteChannel data) throws IOException {
         return digest(getSha512Digest(), data);
     }
 
@@ -736,6 +804,22 @@ public class DigestUtils {
     public static String sha512Hex(final InputStream data) throws IOException {
         return Hex.encodeHexString(sha512(data));
     }
+
+    /**
+     * Calculates the SHA-512 digest and returns the value as a hex string.
+     * <p>
+     * Throws a <code>RuntimeException</code> on JRE versions prior to 1.4.0.
+     * </p>
+     *
+     * @param data Data to digest
+     * @return SHA-512 digest as a hex string
+     * @throws IOException On error reading from the channel
+     * @since 1.4
+     */
+    public static String sha512Hex(final ReadableByteChannel data) throws IOException {
+        return Hex.encodeHexString(sha512(data));
+    }
+
 
     /**
      * Calculates the SHA-512 digest and returns the value as a hex string.
@@ -824,24 +908,23 @@ public class DigestUtils {
     }
 
     /**
-     * Reads through a FileChannel and updates the digest for the data
+     * Reads through a ReadableByteChannel and updates the digest for the data
      * @param digest The MessageDigest to use (e.g. MD5)
      * @param data Data to digest
      * @return the digest
      * @throws IOException On error reading from the channel
      */
-    public static MessageDigest updateDigest(final MessageDigest digest, final FileChannel data) throws IOException {
+    public static MessageDigest updateDigest(final MessageDigest digest, final ReadableByteChannel data) throws IOException {
         // Allocating a buffer directly is faster than the normal allocate method in general.
         final ByteBuffer buffer = ByteBuffer.allocateDirect(STREAM_BUFFER_LENGTH);
-
         int read = data.read(buffer);
         while (read > 0) {
             // reading bytes from this channel into the given buffer moves the current position.
             // we need to set to 0.
             buffer.flip();
             digest.update(buffer);
-            read = data.read(buffer);
             buffer.clear();
+            read = data.read(buffer);
         }
         return digest;
     }
